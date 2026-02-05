@@ -10,7 +10,7 @@ export async function createClient(admin?: boolean) {
 
   // Create a server's supabase client with newly configured cookie,
   // which could be used to maintain user's session
-  return createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, key, {
+  const client = createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, key, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -27,4 +27,6 @@ export async function createClient(admin?: boolean) {
       },
     },
   });
+
+  return client.schema("browser");
 }
