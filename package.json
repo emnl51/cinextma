@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --no-turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -63,20 +63,11 @@
     "typescript": "^5",
     "webpack": "^5.101.2"
   },
-  "prettier": {
-    "proseWrap": "never",
-    "printWidth": 100,
-    "plugins": [
-      "prettier-plugin-tailwindcss"
-    ]
-  },
   "overrides": {
     "@types/react": "19.2.11",
     "@types/react-dom": "19.2.3"
-  }
-}
-{
-  "scripts": {
-    "dev": "next dev --no-turbo"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
