@@ -1,72 +1,85 @@
-# Hibrit Film & Dizi Öneri Sistemi Tasarımı (Üretim Odaklı)
+# Hybrid Movie & TV Series Recommendation System Design (Production-Oriented)
 
-Bu doküman, web uygulaması için uçtan uca **hibrit bir film/dizi öneri sistemi** tasarımını özetler. Amaç, **yüksek doğruluk**, **ölçeklenebilirlik** ve **üretime uygunluk** sağlayan bir mimariyi; içerik tabanlı, işbirlikçi, bilgi tabanlı ve derin öğrenme yaklaşımlarını **dengeleyerek** birleştirmektir.
-
----
-
-## 1) Genel Mimari
-
-### 1.1 Veri Akışı (Pipeline)
-
-**Offline (Batch) Katmanı**
-1. **Veri Toplama**: Kullanıcı oylamaları, izleme geçmişi (timestamp), içerik açıklamaları (özet, tür, oyuncu, yönetmen, etiket), meta veriler (yıl, süre, ülke, dil).
-2. **Özellik Mühendisliği**:
-   - Metin özellikleri (TF-IDF / Sentence-BERT embedding)
-   - Kategorik özellikler (tür, ülke) için one-hot / embedding
-   - İzleme geçmişinden sıralı oturum özellikleri (session windows)
-3. **Model Eğitimi**:
-   - CF (ALS/implicit MF)
-   - Content embeddings
-   - Neural CF / Sequence-aware model
-4. **Model Birleştirme (Ensemble/Fusion)**
-5. **Model/Feature Store** (ör. Feast + S3)
-
-**Online (Serving) Katmanı**
-1. **Gerçek zamanlı sinyal** (son izlemeler, tıklamalar)
-2. **Aday üretimi** (recall) + **yeniden sıralama** (ranking)
-3. **Cache & düşük gecikme** (Redis/KeyDB)
-
-### 1.2 Katmanlar
-- **Candidate Generation (Recall)**: Hızlı ve geniş aday listesi (ör. 500-2000 öğe)
-- **Ranking**: Derin/hibrit model ile nihai sıralama (ör. top-50)
-- **Re-ranking/Business Rules**: çeşitlilik, tazelik, ebeveyn kısıtları, editor picks
-
-### 1.3 Online/Offline Ayrımı
-- **Offline**: ağır eğitim, embedding güncellemeleri, toplu inference
-- **Online**: hafif feature hesaplama + hızlı skorlama
+This document summarizes an **end-to-end hybrid movie/TV recommendation system** design for a web application. The goal is to achieve **high accuracy**, **scalability**, and **production readiness** by **balancing and combining** content-based, collaborative, knowledge-based, and deep learning approaches.
 
 ---
 
-## 2) Model Tasarımı
+## 1) Overall Architecture
 
-### 2.1 Yöntemlerin Rolü
-1. **İçerik Tabanlı (Content)**
-   - Yeni içerik (cold-start) için temel sinyal.
-   - NLP embedding (Sentence-BERT) + meta veri embedding.
+### 1.1 Data Flow (Pipeline)
 
-2. **İşbirlikçi (CF/MF)**
-   - Kullanıcı benzerliği ve etkileşimli pattern yakalama.
-   - Implicit feedback (izleme süreleri) için ALS/implicit MF.
+**Offline (Batch) Layer**
 
-3. **Bilgi Tabanlı (Rule/Knowledge)**
-   - Soğuk başlangıç: kullanıcı tercihlerine dayalı kural tabanı (ör. “sadece Türkçe, 2020+”).
-   - İçerik kısıtları: yaş sınırı, ülke, dil, bölüm sayısı.
+1. **Data Collection**: User ratings, watch history (timestamps), content descriptions (synopsis, genre, cast, director, tags), metadata (year, duration, country, language).
+2. **Feature Engineering**:
 
-4. **Derin Öğrenme**
-   - Neural CF (embedding + MLP) ile nonlinear etkileşim.
-   - Sequence-aware model (Transformer/RNN) ile oturum/sıralı izleme davranışı.
+   * Text features (TF-IDF / Sentence-BERT embeddings)
+   * Categorical features (genre, country) via one-hot or embeddings
+   * Sequential/session features derived from watch history (session windows)
+3. **Model Training**:
 
-### 2.2 Hibritleştirme Stratejisi
+   * CF (ALS / implicit MF)
+   * Content embeddings
+   * Neural CF / sequence-aware models
+4. **Model Combination (Ensemble/Fusion)**
+5. **Model / Feature Store** (e.g., Feast + S3)
 
-**İki aşamalı (Recall + Ranking)**
-- **Recall**: CF + Content embedding + Popülerlik tabanlı adaylar
-- **Ranking**: Neural model + feature fusion
+**Online (Serving) Layer**
+
+1. **Real-time signals** (recent watches, clicks)
+2. **Candidate generation** (recall) + **re-ranking** (ranking)
+3. **Caching & low latency** (Redis / KeyDB)
+
+### 1.2 Layers
+
+* **Candidate Generation (Recall)**: Fast and broad candidate set (e.g., 500–2000 items)
+* **Ranking**: Final ordering using a deep/hybrid model (e.g., top-50)
+* **Re-ranking / Business Rules**: diversity, freshness, parental controls, editor picks
+
+### 1.3 Online / Offline Separation
+
+* **Offline**: heavy training, embedding updates, batch inference
+* **Online**: lightweight feature computation + fast scoring
+
+---
+
+## 2) Model Design
+
+### 2.1 Role of Each Approach
+
+1. **Content-Based**
+
+   * Core signal for new items (cold start).
+   * NLP embeddings (Sentence-BERT) + metadata embeddings.
+
+2. **Collaborative Filtering (CF / MF)**
+
+   * Captures user similarity and interaction patterns.
+   * ALS / implicit MF for implicit feedback (watch duration).
+
+3. **Knowledge-Based (Rules)**
+
+   * Cold start: rule-based filtering from user preferences (e.g., “Turkish only, 2020+”).
+   * Content constraints: age rating, country, language, episode count.
+
+4. **Deep Learning**
+
+   * Neural CF (embeddings + MLP) for nonlinear interactions.
+   * Sequence-aware models (Transformer / RNN) for session and sequential behavior.
+
+### 2.2 Hybridization Strategy
+
+**Two-Stage (Recall + Ranking)**
+
+* **Recall**: CF + content embeddings + popularity-based candidates
+* **Ranking**: Neural model with feature fusion
 
 **Late Fusion (Weighted Ensemble)**
-- Final skor = `w1*CF + w2*Content + w3*Sequence + w4*BusinessRule`
-- Ağırlıklar: offline grid search + online A/B ile optimize edilir.
 
-**Örnek Pseudocode**
+* Final score = `w1*CF + w2*Content + w3*Sequence + w4*BusinessRule`
+* Weights optimized via offline grid search + online A/B testing.
+
+**Example Pseudocode**
 
 ```pseudo
 candidate_pool = union(
@@ -85,92 +98,105 @@ return top_k(result)
 
 ---
 
-## 3) Algoritma & Teknoloji Önerileri
+## 3) Algorithm & Technology Recommendations
 
-### 3.1 Python Ekosistemi
-- **Veri/ETL**: Pandas, PySpark, Airflow
-- **Feature Store**: Feast
-- **Model Eğitimi**:
-  - CF: `implicit` (ALS), `surprise` (SVD), `lightfm`
-  - NLP: `sentence-transformers`, `scikit-learn` (TF-IDF)
-  - Deep: `PyTorch`, `TensorFlow`
-- **Serving**: FastAPI, TorchServe / Triton
-- **Cache**: Redis
-- **Monitoring**: Evidently, Prometheus + Grafana
+### 3.1 Python Ecosystem
 
-### 3.2 Embedding & Model Seçenekleri
-- Content embedding: `all-MiniLM-L6-v2` (Sentence-BERT) veya domain-specific LLM embeddings
-- Sequence model: Transformer (SASRec / BERT4Rec)
-- Ranking model: DNN + attention-based fusion
+* **Data / ETL**: Pandas, PySpark, Airflow
+* **Feature Store**: Feast
+* **Model Training**:
+
+  * CF: `implicit` (ALS), `surprise` (SVD), `lightfm`
+  * NLP: `sentence-transformers`, `scikit-learn` (TF-IDF)
+  * Deep Learning: PyTorch, TensorFlow
+* **Serving**: FastAPI, TorchServe / Triton
+* **Cache**: Redis
+* **Monitoring**: Evidently, Prometheus + Grafana
+
+### 3.2 Embedding & Model Options
+
+* Content embeddings: `all-MiniLM-L6-v2` (Sentence-BERT) or domain-specific LLM embeddings
+* Sequence models: Transformer (SASRec / BERT4Rec)
+* Ranking models: DNN with attention-based fusion
 
 ---
 
-## 4) Değerlendirme Metrikleri
+## 4) Evaluation Metrics
 
 **Offline**
-- Precision@K
-- Recall@K
-- NDCG@K
-- MRR
 
-**Online (A/B Test)**
-- CTR, izleme süresi, geri dönüş oranı
-- **Guardrail**: bounce rate, latency
+* Precision@K
+* Recall@K
+* NDCG@K
+* MRR
 
-**A/B Test Stratejisi**
-1. Yeni model %10 trafik → kontrol %90
-2. 2 hafta izleme
-3. Guardrail bozulmuyorsa rollout
+**Online (A/B Testing)**
+
+* CTR, watch time, retention
+* **Guardrails**: bounce rate, latency
+
+**A/B Testing Strategy**
+
+1. New model: 10% traffic → Control: 90%
+2. Observe for 2 weeks
+3. Roll out if guardrails are not violated
 
 ---
 
-## 5) Web Uygulaması Entegrasyonu
+## 5) Web Application Integration
 
-### 5.1 API Tasarımı
+### 5.1 API Design
 
 **/recommendations**
-- Input: user_id, session_id, context (device, time)
-- Output: top-N item list + score
+
+* Input: `user_id`, `session_id`, `context` (device, time)
+* Output: top-N item list + scores
 
 **/feedback**
-- Input: user_id, item_id, action (view, like, skip), timestamp
 
-### 5.2 Gerçek Zamanlı Akış
-- Event stream: Kafka / Kinesis
-- Feature update: streaming aggregation (son 24 saat izlemeler)
+* Input: `user_id`, `item_id`, `action` (view, like, skip), `timestamp`
 
-### 5.3 Ölçeklenebilirlik
-- **Batch inference**: gece toplu skorlar
-- **Online cache**: Redis (hot users)
-- **Approx NN**: Faiss / ScaNN (embedding similarity)
+### 5.2 Real-Time Streaming
+
+* Event stream: Kafka / Kinesis
+* Feature updates: streaming aggregation (last 24h watches)
+
+### 5.3 Scalability
+
+* **Batch inference**: nightly bulk scoring
+* **Online cache**: Redis (hot users)
+* **Approximate NN**: Faiss / ScaNN (embedding similarity)
 
 ---
 
-## 6) Geliştirme Yol Haritası
+## 6) Development Roadmap
 
-### MVP (4-6 hafta)
-- TF-IDF + basit CF (SVD/ALS)
-- Basit API + offline evaluation
+### MVP (4–6 weeks)
+
+* TF-IDF + simple CF (SVD / ALS)
+* Basic API + offline evaluation
 
 ### Beta
-- Sentence-BERT embedding + implicit feedback
-- Basit fusion (weighted ensemble)
-- A/B test altyapısı
+
+* Sentence-BERT embeddings + implicit feedback
+* Simple fusion (weighted ensemble)
+* A/B testing infrastructure
 
 ### Production
-- Neural CF + sequence-aware
-- Online feature updates
-- Monitoring + drift detection
+
+* Neural CF + sequence-aware models
+* Online feature updates
+* Monitoring + drift detection
 
 ---
 
-## Ek: Risk Yönetimi
+## Appendix: Risk Management
 
-- **Sparsity**: implicit feedback + content embedding ile azaltılır.
-- **Cold-start**: metadata + rule-based fallback.
-- **Filter bubble**: çeşitlilik re-ranking + serendipity hedefi.
-- **Explainability**: “çünkü X içeriklerini izledin” açıklamaları.
+* **Sparsity**: mitigated via implicit feedback + content embeddings.
+* **Cold Start**: metadata + rule-based fallback.
+* **Filter Bubble**: diversity-aware re-ranking + serendipity objectives.
+* **Explainability**: explanations such as “because you watched X”.
 
 ---
 
-**Not**: Bu tasarım üretime hazırdır; ancak model seçimleri veri hacmine, latency ve maliyet hedeflerine göre adapte edilmelidir.
+**Note**: This design is production-ready; however, model choices should be adapted based on data volume, latency constraints, and cost targets.
