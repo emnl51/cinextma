@@ -3,10 +3,10 @@ import { env } from "../env";
 import { Database } from "./types";
 
 export function createClient() {
-  const client = createBrowserClient<Database>(
+  const client = createBrowserClient<Database, "browser">(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   );
 
-  return client.schema("browser");
+  return client;
 }

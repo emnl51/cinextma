@@ -1,6 +1,5 @@
 "use server";
 
-import { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 import {
   ForgotPasswordFormInput,
@@ -22,7 +21,8 @@ import { ActionResponse } from "@/types";
  * @param supabase The Supabase client instance.
  * @returns An ActionResponse.
  */
-type AuthAction<T> = (data: T, supabase: SupabaseClient) => ActionResponse;
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+type AuthAction<T> = (data: T, supabase: SupabaseServerClient) => Promise<ActionResponse>;
 
 /**
  * A higher-order function to create a server action that handles
@@ -37,7 +37,7 @@ const createAuthAction = <T extends { captchaToken?: string }>(
   action: AuthAction<T>,
   admin?: boolean,
 ) => {
-  return async (formData: T): ActionResponse => {
+  return async (formData: T): Promise<ActionResponse> => {
     const result = schema.safeParse(formData);
     if (!result.success) {
       const message = result.error.issues.map((issue) => issue.message).join(". ");
@@ -171,7 +171,7 @@ export const sendResetPasswordEmail = createAuthAction(
 );
 export const resetPassword = createAuthAction(ResetPasswordFormSchema, resetPasswordAction);
 
-export const signOut = async (): ActionResponse => {
+export const signOut = async (): Promise<ActionResponse> => {
   const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
 
