@@ -27,7 +27,7 @@ export type RecommendationCandidate = {
   genre_ids: number[];
   original_language?: string;
   adult?: boolean;
-  sources: Set<RecommendationSource>;
+  sources: RecommendationSource[];
   sourceScore: number;
 };
 
@@ -96,7 +96,7 @@ export const normalizeCandidate = (item: Movie | TV, type: ContentType): Recomme
     genre_ids: item.genre_ids ?? [],
     original_language: item.original_language,
     adult: "adult" in item ? item.adult : false,
-    sources: new Set<RecommendationSource>(),
+    sources: [],
     sourceScore: 0,
   };
 };
@@ -109,12 +109,14 @@ export const addCandidateToPool = (
   const key = `${candidate.type}-${candidate.id}`;
   const existing = pool.get(key);
   if (existing) {
-    existing.sources.add(source);
+    if (!existing.sources.includes(source)) {
+      existing.sources.push(source);
+    }
     existing.sourceScore += sourceWeights[source];
     return;
   }
 
-  candidate.sources.add(source);
+  candidate.sources.push(source);
   candidate.sourceScore = sourceWeights[source];
   pool.set(key, candidate);
 };
@@ -152,16 +154,16 @@ export const scoreCandidates = (
       languageBoost;
 
     const reasons: string[] = [];
-    if (candidate.sources.has("tmdb_recommendations")) {
+    if (candidate.sources.includes("tmdb_recommendations")) {
       reasons.push("TMDB recommendation");
     }
-    if (candidate.sources.has("tmdb_similar")) {
+    if (candidate.sources.includes("tmdb_similar")) {
       reasons.push("Similar to your recent watches");
     }
-    if (candidate.sources.has("genre_discover")) {
+    if (candidate.sources.includes("genre_discover")) {
       reasons.push("Matches your favorite genres");
     }
-    if (candidate.sources.has("popular")) {
+    if (candidate.sources.includes("popular")) {
       reasons.push("Popular right now");
     }
     if (languageBoost > 0) {

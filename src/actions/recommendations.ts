@@ -9,9 +9,9 @@ import {
   diversifyCandidates,
   normalizeCandidate,
   scoreCandidates,
-  RecommendationRanked,
   RecommendationSeed,
 } from "@/utils/recommendations";
+import { HybridRecommendation } from "@/types/recommendations";
 import { createClient } from "@/utils/supabase/server";
 
 type RecommendationRequest = {
@@ -20,8 +20,6 @@ type RecommendationRequest = {
   seedLimit?: number;
   type?: ContentType;
 };
-
-export type HybridRecommendation = RecommendationRanked;
 
 export const getHybridRecommendations = async (
   request: RecommendationRequest = {},
