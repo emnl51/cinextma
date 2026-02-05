@@ -2,61 +2,26 @@
   "name": "cinextma",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "NEXT_DISABLE_TURBOPACK=1 next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "@bprogress/next": "^3.2.12",
-
-    "@heroui/react": "2.7.4",
-    "@heroui/system-rsc": "2.3.18",
-    "@heroui/theme": "2.3.16",
-
-    "@hookform/resolvers": "^5.2.1",
-    "@mantine/hooks": "^8.2.4",
-    "@marsidev/react-turnstile": "^1.3.0",
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.56.0",
-    "@t3-oss/env-nextjs": "^0.13.8",
-    "@tanstack/react-query": "^5.85.3",
-    "@vercel/analytics": "^1.5.0",
-    "@vercel/speed-insights": "^1.2.0",
-    "date-fns": "^4.1.0",
-    "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.23.12",
-    "next": "14.2.5",
-    "next-themes": "^0.4.6",
-    "nuqs": "^2.4.3",
+    "next": "14.2.15",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-hook-form": "^7.62.0",
-    "react-icons": "^5.5.0",
-    "react-intersection-observer": "^9.16.0",
-    "react-share": "^5.2.2",
-    "string-ts": "^2.2.1",
-    "tailwindcss-motion": "^1.1.1",
-    "tmdb-ts": "^2.0.2",
-    "use-long-press": "^3.3.0",
-    "vaul": "^1.1.2",
-    "yet-another-react-lightbox": "^3.25.0",
-    "zod": "^4.1.1"
+
+    "@heroui/react": "2.3.18",
+    "@heroui/system-rsc": "2.3.18",
+    "@heroui/theme": "2.4.26",
+
+    "@ducanh2912/next-pwa": "^10.0.7"
   },
   "devDependencies": {
-    "@types/node": "^18",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.4.19",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "14.2.5",
+    "tailwindcss": "^4.1.18",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.19",
-    "typescript": "^5"
-  },
-  "engines": {
-    "node": ">=18"
+    "autoprefixer": "^10.4.19",
+    "typescript": "^5.4.5"
   }
 }
