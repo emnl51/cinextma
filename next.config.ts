@@ -1,5 +1,5 @@
 import withPWAInit from "@ducanh2912/next-pwa";
-import { NextConfig } from "next/dist/server/config";
+import type { NextConfig } from "next";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -9,20 +9,19 @@ const withPWA = withPWAInit({
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   workboxOptions: {
-    disableDevLogs: true,
-  },
+    disableDevLogs: true
+  }
 });
 
 const nextConfig: NextConfig = {
-  // https://github.com/payloadcms/payload/issues/12550#issuecomment-2939070941
-  turbopack: {
-    resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js", ".mjs", ".json"],
-  },
+  /**
+   * ❌ TURBOPACK TAMAMEN KALDIRILDI
+   * StackBlitz (WASM) desteklemez
+   */
+
   experimental: {
-    optimizePackageImports: ["@heroui/react"],
-  },
+    optimizePackageImports: ["@heroui/react"]
+  }
 };
 
-const pwa = withPWA(nextConfig);
-
-export default pwa;
+export default withPWA(nextConfig);
