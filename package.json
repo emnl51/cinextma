@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
-    "@ducanh2912/next-pwa": "^10.2.9",
-    "@heroui/react": "^2.8.3",
+
+    "@heroui/react": "2.7.4",
+    "@heroui/system-rsc": "2.2.9",
+    "@heroui/theme": "2.3.16",
+
     "@hookform/resolvers": "^5.2.1",
     "@mantine/hooks": "^8.2.4",
     "@marsidev/react-turnstile": "^1.3.0",
@@ -46,10 +49,11 @@
     "@types/node": "^18",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.1",
     "eslint-config-next": "14.2.5",
-    "postcss": "^8",
-    "tailwindcss": "^3",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5"
   },
   "engines": {
