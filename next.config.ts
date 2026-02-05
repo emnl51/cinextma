@@ -14,11 +14,6 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
-  /**
-   * ❌ TURBOPACK TAMAMEN KALDIRILDI
-   * StackBlitz (WASM) desteklemez
-   */
-
   experimental: {
     optimizePackageImports: ["@heroui/react"]
   }
