@@ -1,12 +1,14 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import { useDocumentTitle } from "@mantine/hooks";
 import { Button } from "@heroui/react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function NotFound() {
-  useDocumentTitle(`404 Not Found | ${siteConfig.name}`);
+  useEffect(() => {
+    document.title = `404 Not Found | ${siteConfig.name}`;
+  }, []);
 
   return (
     <div className="absolute-center text-center">

@@ -5,7 +5,7 @@ import { TMDB } from "tmdb-ts";
 const token = env.NEXT_PUBLIC_TMDB_ACCESS_TOKEN;
 
 if (isEmpty(token)) {
-  throw new Error("TMDB_ACCESS_TOKEN is not defined");
+  console.warn("TMDB_ACCESS_TOKEN is not defined. TMDB requests will fail until configured.");
 }
 
-export const tmdb = new TMDB(token);
+export const tmdb = new TMDB(token ?? "");
