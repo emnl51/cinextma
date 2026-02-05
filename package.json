@@ -13,7 +13,7 @@
     "@bprogress/next": "^3.2.12",
 
     "@heroui/react": "2.7.4",
-    "@heroui/system-rsc": "2.2.9",
+    "@heroui/system-rsc": "2.3.18",
     "@heroui/theme": "2.3.16",
 
     "@hookform/resolvers": "^5.2.1",
