@@ -1,4 +1,4 @@
-create table public.watchlist (
+create table browser.watchlist (
   user_id uuid not null references auth.users(id) on delete cascade,
   id integer not null,
   type text not null check (type in ('movie','tv')),
@@ -12,23 +12,23 @@ create table public.watchlist (
   primary key (user_id, id, type)
 );
 
-alter table public.watchlist enable row level security;
+alter table browser.watchlist enable row level security;
 
 -- Policies
 create policy "Users can view their own watchlist"
-on public.watchlist
+on browser.watchlist
 for select
 to authenticated
 using ((( SELECT auth.uid() AS uid) = user_id));
 
 create policy "Users can insert their own watchlist"
-on public.watchlist
+on browser.watchlist
 for insert
 to authenticated
 with check ((( SELECT auth.uid() AS uid) = user_id));
 
 create policy "Users can delete their own watchlist"
-on public.watchlist
+on browser.watchlist
 for delete
 to authenticated
 using ((( SELECT auth.uid() AS uid) = user_id));
