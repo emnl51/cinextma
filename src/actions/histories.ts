@@ -10,7 +10,7 @@ import { createClient } from "@/utils/supabase/server";
 export const syncHistory = async (
   data: UnifiedPlayerEventData,
   completed?: boolean,
-): ActionResponse => {
+): Promise<ActionResponse> => {
   console.info("Saving history:", data);
 
   if (!data) return { success: false, message: "No data to save" };
@@ -105,7 +105,9 @@ export const syncHistory = async (
   }
 };
 
-export const getUserHistories = async (limit: number = 20): ActionResponse<HistoryDetail[]> => {
+export const getUserHistories = async (
+  limit: number = 20,
+): Promise<ActionResponse<HistoryDetail[]>> => {
   try {
     const supabase = await createClient();
 

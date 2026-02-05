@@ -6,11 +6,11 @@ export type Params<T> = {
   params: Promise<T>;
 };
 
-export type ActionResponse<T = null> = Promise<{
+export type ActionResponse<T = null> = {
   success: boolean;
   message?: string;
   data?: T;
-}>;
+};
 
 export type MovieParam =
   | "todayTrending"

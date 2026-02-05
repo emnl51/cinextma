@@ -1,5 +1,6 @@
 import { ContentType } from "@/types";
-import { Movie, TV } from "tmdb-ts/dist/types";
+import { Movie, Recommendation, TV } from "tmdb-ts/dist/types";
+import { SimilarTvShow } from "tmdb-ts/dist/types/tv-shows";
 
 export type RecommendationSource =
   | "tmdb_recommendations"
@@ -83,7 +84,10 @@ export const buildRecommendationProfile = (seeds: RecommendationSeed[]): Recomme
   };
 };
 
-export const normalizeCandidate = (item: Movie | TV, type: ContentType): RecommendationCandidate => {
+export const normalizeCandidate = (
+  item: Movie | TV | Recommendation | SimilarTvShow,
+  type: ContentType,
+): RecommendationCandidate => {
   return {
     id: item.id,
     type,
